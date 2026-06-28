@@ -1,0 +1,171 @@
+📋 PLANO DE NEGÓCIOS E OPERAÇÃO
+LOGÍSTICA: AEROBRASLOG &
+CARRETO BRÁS
+Data do Documento: Junho de 2026 Local de Operação: Polo Comercial do Brás, São Paulo
+- SP Objetivo: Operação de logística leve, rápida e armazenagem temporária para o comércio
+de atacado e varejo.
+
+1. ARQUITETURA DE MARCA E CONCEITO
+  ●​ Empresa Principal (Holding): Aerobraslog Foco: Gestão institucional, tecnologia
+     (aplicativo), segurança jurídica, inteligência de dados e contratos de grande escala.
+  ●​ Empresa Comercial (Operacional): Carreto Brás Foco: Identidade pública nas ruas,
+     atendimento ao cliente, relacionamento com sacoleiros e lojistas, e execução do
+     transporte.
+
+2. ORGANOGRAMA DA EMPRESA
+A. Nível Estratégico (Holding / Diretoria Executiva)
+  ●​ CEO / Fundador (Mikael Marinho)
+       ○​ Diretoria de Tecnologia (CTO): Responsável pelo desenvolvimento, manutenção,
+          servidores e atualizações do aplicativo (Frente Aerobraslog).
+       ○​ Diretoria Jurídica e Compliance: Responsável pelos contratos dos entregadores
+          autônomos, termos de uso dos lojistas, seguros de carga e regularização com a
+          administração dos shoppings.
+       ○​ Diretoria Financeira (CFO): Gestão do fluxo de caixa, controle do aluguel dos
+          boxes, processamento de pagamentos do app (cartão/Pix) e divisão das taxas de
+          repasse.
+
+B. Nível Tático (Gestão de Operações - Carreto Brás)
+  ●​ Gerente Geral de Operações (Brás)
+       ○​ Supervisão de Expansão e Comercial: Responsável por prospectar novos
+          lojistas parceiros, fechar contratos com novos shoppings e gerenciar o marketing
+          local.
+       ○​ Supervisão de Logística de Rua: Responsável pelo recrutamento, triagem de
+          antecedentes, treinamento, ativação e bloqueio de entregadores no aplicativo.
+
+C. Nível Operacional (As Lojas/Boxes nos Shoppings)
+Cada Shopping (Vautier Premium, Total Brás, etc.) terá uma célula operacional idêntica:
+  ●​ Encarregado / Atendente de Box (1 por turno/loja)
+        ○​ Função: Recepção de mercadorias, bipagem de QR Code, pesagem, etiquetagem
+           física e organização das prateleiras por "Rotas de Destino".
+        ○​ Subordinação: Reporta-se diretamente ao Gerente Geral de Operações.
+
+D. Nível de Execução (Frota de Distribuição Autônoma)
+Profissionais parceiros cadastrados no aplicativo, divididos por capacidade de carga, que
+aguardam chamados na fila virtual ou física do box:
+  ●​ Operadores de Carrinho de Mão (Grandes Volumes): Escoamento de fardos de
+      confecção e caixas pesadas para os 3 destinos mais movimentados.
+  ●​ Operadores de Moto Elétrica / Bike (Médios e Pequenos Volumes): Entregas rápidas
+      de e-commerce, sacolas médias, pacotes de aviamentos e suporte regional.
+  ●​ Operadores A Pé (Mochila/Bag): Entregas de curtíssima distância exclusivamente de
+      galeria para galeria.
+
+3. MEIOS DE TRANSPORTE E CATEGORIAS DO APP
+Foco absoluto em mobilidade urbana sustentável e agilidade para cortar o trânsito travado do
+Brás, utilizando frotas que não exigem CNH:
+  1.​ Carreto Brás A Pé (Mochila/Bag): Pacotes pequenos, e-commerce, sacolas plásticas e
+      aviamentos urgentes entre lojas próximas.
+  2.​ Carreto Brás Carrinho (Grandes Volumes): A força motriz do projeto. Focado no
+      transporte de fardos fechados de confecção, sacolas xadrezes gigantes e caixas
+      pesadas de utensílios através de carrinhos de mão reforçados.
+  3.​ Carreto Brás Bike: Entregas rápidas de médio volume num raio de até 3 km a 5 km
+      (conexão com Pari, Canindé e Centro).
+  4.​ Carreto Brás E-Mob (Motos Elétricas): Utilização de veículos elétricos de mobilidade
+      individual de baixa potência para entregas rápidas regionais sem custo de combustível.
+
+4. MATRIZ DE CAPACIDADE, PESO E PRECIFICAÇÃO
+INTEGRADA
+Nota de Negócio: O valor do frete já embutirá o custo de locação das lojas/boxes dentro dos
+shoppings. A armazenagem temporária de até 2 horas será gratuita (inclusa no frete) para
+fidelização do cliente.
+Categoria no Meio de            Perfil de       Peso Máximo Tempo de Box Preço Médio
+App              Transporte     Volume Ideal                   Incluso         Estimado
+Brás A Pé        Mochila / Bag Pacotes          Até 8 kg       Até 2 horas     R$ 10,00 a R$
+                 padrão         pequenos,                                      12,00
+                                acessórios
+Brás E-Mob / Moto Elétrica / Sacolas            Até 15 kg      Até 2 horas     R$ 15,00 a R$
+Bike             Bike           médias, caixas                                 20,00
+Carreto          Carrinho de    Fardos          Até 120 kg     Até 2 horas     R$ 25,00 a R$
+Carrinho         Mão            grandes,                                       35,00 (por
+                                sacolas                                        fardo)
+                                xadrezes
+Regras de Cálculo do Sistema:
+ ●​ Trava de Cubagem: O sistema bloqueia categorias leves se o peso/volume selecionado
+    ultrapassar os limites, direcionando automaticamente para o Carrinho de Mão.
+ ●​ Adicional de Km: Para categorias sobre rodas (Bike/E-Mob) que ultrapassarem o raio
+    de 3 km do shopping de origem, soma-se R$ 2,00 por km adicional.
+ ●​ Taxa de Retirada (Cancelamento): Se o cliente deixar o produto no box, estourar o
+    tempo e decidir retirar em mãos sem contratar o frete, o app cobra o valor base do frete
+    como taxa de uso do espaço.
+
+5. MAPEAMENTO GEOGRÁFICO DA OPERAÇÃO
+Polos de Coleta (Boxes Próprios nos Shoppings):
+ ●​   Shopping Vautier Premium (Rua Tiers) – Base Central do Piloto
+ ●​   Shopping Total Brás (Rua João Teodoro)
+ ●​   Shopping Newmall (Rua João Teodoro)
+ ●​   Shopping Vaultier (Avenida Vautier)
+ ●​   Mega Polo Moda (Rua Barão de Ladário)
+ ●​   Shopping Plaza Polo (Rua Barão de Ladário)
+ ●​   Shopping All Brás (Rua Rodrigues dos Santos)
+ ●​   Shopping Porto Brás (Rua Brás Cubas)
+ ●​   Busca Busca - Brás (Rua Barão de Ladário)
+ ●​   Shopping Valtier Chiffon (Rua Tiers)
+ ●​   Shopping HD (Rua Carneiro Leão)
+
+Pátios e Estacionamentos de Ônibus (Destinos Finais):
+ ●​   Estacionamento Superior do Shopping Vautier Premium
+ ●​   Estacionamento do Shopping Total Brás
+ ●​   Estacionamento da Coroa / Pátio da Coroa (Pari/Canindé)
+ ●​   Estacionamento e Pátio Pari (Próximo à Feira da Madrugada)
+ ●​   Bolsões privados das Ruas Japurá, Santa Rosa e Monsenhor Andrade.
+
+6. CENÁRIO PARA TESTE PILOTO (VALIDAÇÃO
+OPERACIONAL)
+ ●​ Volume de Teste: 10 Clientes (Lojistas) × 10 fardos por dia = 100 volumes/dia.
+ ●​ Janela de Despacho: A cada 2 horas.
+ ●​ Equipe Necessária (5 Pessoas baseadas no Organograma):
+      ○​ 1 Operador Interno de Box: Fixo na loja do Shopping Vautier Premium realizando
+         recepção, triagem por prateleiras de destino e etiquetagem digital.
+      ○​ 3 Entregadores com Carrinho de Mão: Cada um travado em uma das 3 rotas
+         mais movimentadas do Brás (Rota 1: Interno Vautier; Rota 2: João Teodoro/Total
+         Brás; Rota 3: Bolsão da Coroa).
+      ○​ 1 Entregador com Moto Elétrica / Bike: O "Coringa" para pacotes rápidos e
+           suporte de cargas em janelas sobrecarregadas.
+
+7. SEGURANÇA E DOCUMENTAÇÃO OBRIGATÓRIA
+Para os Colaboradores (Entregadores Autônomos):
+ ●​   Nome completo, CPF e RG (ou RNE/RNM válido para estrangeiros).
+ ●​   Comprovante de residência e dados bancários/chave Pix vinculada ao CPF.
+ ●​   Foto de perfil estilo selfie segurando o documento de identidade.
+ ●​   Uso obrigatório de colete e bag numerada/padronizada da Carreto Brás.
+
+Para os Lojistas (Parceiros Comerciais):
+ ●​ CNPJ ou CPF (aceitando pequenos boxistas regulamentados).
+ ●​ Razão Social / Nome Fantasia da loja e endereço exato (Shopping, Andar, Ala e Número
+    do Box).
+ ●​ WhatsApp de contato do responsável pela loja.
+ ●​ Assinatura digital do Termo de Uso atestando legalidade da mercadoria transportada.
+
+8. PROCEDIMENTOS OPERACIONAIS PADRÃO
+(POPs) PARA AGILIDADE
+FLUXO FUNCIONAL DO APLICATIVO:
+ 1.​ Entrada: Lojista solicita o serviço ➔ O App exige o endereço do Box e o Destino (Placa
+     do Ônibus/Estacionamento).
+ 2.​ Triagem de Carga: O lojista declara o volume ➔ O sistema filtra o peso e decide a
+     categoria de veículo adequada.
+ 3.​ Armazenagem: O produto chega ao box ➔ O Atendente bipa a entrada ➔ O sistema
+     inicia o cronômetro de 2 horas.
+ 4.​ Despacho: O comprador libera a entrega no celular ➔ O sistema aciona o entregador da
+     categoria correta no topo da fila.
+
+REGRAS OPERACIONAIS EM CAMPO:
+ ●​ POP de Recebimento (Meta: 2 minutos): O produto entra no box ➔ O atendente pesa,
+    tira foto da carga, emite o QR Code, cola a etiqueta e armazena na prateleira correta do
+    destino.
+ ●​ POP de Acionamento (Meta: 15 minutos): Cliente clica em "Liberar Entrega" no app ➔
+    O painel do box pisca ➔ O atendente repassa a carga imediatamente para o entregador
+    daquela rota que está na fila.
+ ●​ POP de Segurança na Entrega (PIN + Foto): O lojista fornece um PIN de segurança de
+    4 dígitos gerado pelo app ao entregador para iniciar a viagem ➔ Ao chegar no ônibus, o
+    entregador coleta a assinatura do responsável na tela do celular e tira uma foto
+    obrigatória do fardo dentro do bagageiro para encerrar o pedido.
+📝 ANOTAÇÕES E PONTOS DE ATENÇÃO PARA O GESTOR:
+(Utilize este espaço impresso para marcar o que precisa ser ajustado prioritariamente)
+  1.​ [ ] Jurídico: Validar o termo de uso do aplicativo e o contrato de parceria autônoma dos
+       entregadores para evitar riscos trabalhistas.
+  2.​ [ ] Comercial: Iniciar contato e negociação de locação do primeiro box piloto no
+       Shopping Vautier Premium.
+  3.​ [ ] Tecnologia: Homologar o sistema de rastreamento e disparo de PIN de segurança
+       para os testes.
+  4.​ [ ] Logística: Cotar e comprar os carrinhos de mão reforçados e coletes numerados para
+       o piloto.
+
