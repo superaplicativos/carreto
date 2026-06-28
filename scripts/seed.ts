@@ -6,7 +6,11 @@
  * - 1 Box piloto no Shopping Vautier Premium
  * - 3 lojistas parceiros adicionais
  * - 4 entregadores piloto (1 por categoria)
+ *
+ * Uso:
+ *   DATABASE_URL=... DIRECT_URL=... bun run scripts/seed.ts
  */
+
 import { db } from "../src/lib/db";
 
 const SHOPPINGS = [
