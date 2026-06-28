@@ -1,0 +1,241 @@
+// Carreto Brás / Aerobraslog — Schema completo
+// Compatível com Supabase Postgres: basta trocar DATABASE_URL no .env
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============ USUÁRIOS E PERFIS ============
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role     @default(LOJISTA)
+  status    UserStatus @default(ATIVO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lojistaProfile  LojistaProfile?
+  entregadorProfile EntregadorProfile?
+  atendenteBox    Box?
+  requests        DeliveryRequest[]   @relation("LojistaRequests")
+  deliveries      DeliveryRequest[]   @relation("EntregadorDeliveries")
+  auditLogs       AuditLog[]
+}
+
+enum Role {
+  ADMIN
+  GERENTE
+  ATENDENTE
+  LOJISTA
+  ENTREGADOR
+}
+
+enum UserStatus {
+  ATIVO
+  BLOQUEADO
+  PENDENTE
+}
+
+model LojistaProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentType String  // CPF ou CNPJ
+  document    String
+  storeName   String
+  shoppingId  String
+  shopping    Location @relation(fields: [shoppingId], references: [id])
+  boxNumber   String
+  floor       String?
+  wing        String?
+  whatsapp    String
+  termAccepted Boolean @default(false)
+  termAcceptedAt DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model EntregadorProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cpf             String
+  rg              String
+  address         String
+  pixKey          String
+  photoUrl        String?  // selfie com documento
+  vehicleCategory VehicleCategory
+  uniformKit      String?  // número do colete/bag
+  status          EntregadorStatus @default(PENDENTE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum EntregadorStatus {
+  PENDENTE
+  APROVADO
+  BLOQUEADO
+  EM_ENTREGA
+  DISPONIVEL
+}
+
+// ============ GEOGRAFIA ============
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  type      LocationType
+  address   String
+  lat       Float?
+  lng       Float?
+  createdAt DateTime @default(now())
+  boxes     Box[]
+  lojistas  LojistaProfile[]
+  requestsFrom DeliveryRequest[] @relation("OriginLocation")
+  requestsTo   DeliveryRequest[] @relation("DestLocation")
+}
+
+enum LocationType {
+  SHOPPING
+  ESTACIONAMENTO
+  BOLSAO
+  PATIO
+}
+
+model Box {
+  id          String   @id @default(cuid())
+  code        String   @unique // "VAUTIER-01"
+  shoppingId  String
+  shopping    Location @relation(fields: [shoppingId], references: [id])
+  attendantId String?  @unique // userId do atendente
+  attendant   User?    @relation(fields: [attendantId], references: [id])
+  capacityKg  Int      @default(500)
+  createdAt   DateTime @default(now())
+  packages    Package[]
+}
+
+// ============ PEDIDOS DE ENTREGA ============
+
+model DeliveryRequest {
+  id            String   @id @default(cuid())
+  code          String   @unique // "CB-2026-00001"
+  lojistaId     String
+  lojista       User     @relation("LojistaRequests", fields: [lojistaId], references: [id])
+  entregadorId  String?
+  entregador    User?    @relation("EntregadorDeliveries", fields: [entregadorId], references: [id])
+
+  originLocationId String
+  originLocation   Location @relation("OriginLocation", fields: [originLocationId], references: [id])
+  destLocationId   String
+  destLocation     Location @relation("DestLocation", fields: [destLocationId], references: [id])
+
+  vehicleCategory   VehicleCategory
+  declaredWeightKg  Float
+  declaredVolume    String
+  distanceKm        Float    @default(0)
+  basePrice         Float
+  kmAdditional      Float    @default(0)
+  withdrawalFee     Float    @default(0)
+  totalPrice        Float
+
+  status        RequestStatus @default(SOLICITADO)
+  pin           String?  // PIN 4 dígitos
+  pinGeneratedAt DateTime?
+
+  createdAt     DateTime @default(now())
+  receivedAtBox DateTime?  // bipagem no box
+  dispatchedAt  DateTime?
+  pickedUpAt    DateTime?
+  deliveredAt   DateTime?
+  cancelledAt   DateTime?
+
+  packages      Package[]
+  transactions  Transaction[]
+}
+
+enum VehicleCategory {
+  BRAS_A_PE      // até 8kg - R$10-12
+  BRAS_E_MOB     // até 15kg - R$15-20
+  BRAS_BIKE      // até 15kg - R$15-20
+  CARRETO_CARRINHO // até 120kg - R$25-35
+}
+
+enum RequestStatus {
+  SOLICITADO      // lojista acabou de pedir
+  RECEBIDO_BOX    // atendente bipou
+  PRONTO_DESPACHO // etiquetado e na prateleira
+  LIBERADO        // lojista clicou em "liberar entrega"
+  EM_ENTREGA      // entregador aceitou e pegou
+  ENTREGUE        // entregue com foto+assinatura
+  CANCELADO
+  RETIRADO_LOJA   // lojista retirou no box (taxa cobrada)
+}
+
+// ============ PACOTES ============
+
+model Package {
+  id           String   @id @default(cuid())
+  requestId    String
+  request      DeliveryRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  boxId        String?
+  box          Box?     @relation(fields: [boxId], references: [id])
+  qrCode       String   @unique
+  weightKg     Float
+  description  String
+  photoUrl     String?
+  shelfCode    String?  // prateleira de destino
+  receivedAt   DateTime?
+  createdAt    DateTime @default(now())
+}
+
+// ============ TRANSAÇÕES ============
+
+model Transaction {
+  id           String   @id @default(cuid())
+  requestId    String
+  request      DeliveryRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  amount       Float
+  type         TransactionType
+  status       TransactionStatus @default(PENDENTE)
+  method       String? // PIX, CARTAO
+  splitHolding Float   @default(0) // repasse para Aerobraslog
+  splitOperator Float  @default(0) // repasse para Carreto Brás
+  splitCourier Float   @default(0) // repasse para entregador
+  createdAt    DateTime @default(now())
+  paidAt       DateTime?
+}
+
+enum TransactionType {
+  FRETE
+  ADICIONAL_KM
+  TAXA_RETIRADA
+  MULTA_ESTOURO_TEMPO
+}
+
+enum TransactionStatus {
+  PENDENTE
+  PAGO
+  CANCELADO
+}
+
+// ============ AUDITORIA ============
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  ip        String?
+  createdAt DateTime @default(now())
+}

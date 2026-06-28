@@ -1,0 +1,11 @@
+{
+  "name": "Carreto Brás",
+  "short_name": "CarretoBrás",
+  "description": "Plataforma de logística urbana Aerobraslog × Carreto Brás",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f97316",
+  "theme_color": "#f97316",
+  "orientation": "portrait",
+  "icons": []
+}
