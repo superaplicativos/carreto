@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
 import { useAuth } from "@/lib/auth-client";
+import { useRealtimeMulti } from "@/hooks/use-realtime";
 
 interface QueueRequest {
   id: string;
@@ -59,6 +60,8 @@ export function EntregadorDashboard() {
   const [photoUrl, setPhotoUrl] = useState("");
   const [signatureUrl, setSignatureUrl] = useState("");
 
+  const prevQueueCountRef = useRef<number>(0);
+
   const fetchAll = useCallback(async () => {
     try {
       const [queueRes, mineRes] = await Promise.all([
@@ -71,18 +74,40 @@ export function EntregadorDashboard() {
         .find((e) => e.user.id === user?.id);
       if (found) setProfile(found);
 
-      setAvailableRequests(queueData.availableRequests || []);
+      const newAvailable = queueData.availableRequests || [];
+      const oldCount = prevQueueCountRef.current;
+      const newCount = newAvailable.length;
+      // Notifica se chegou pedido novo na fila (e já tínhamos carregado antes)
+      if (oldCount > 0 && newCount > oldCount) {
+        try {
+          const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 660;
+          gain.gain.setValueAtTime(0.3, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.5);
+        } catch {}
+        toast.success(`🚚 Novo pedido disponível na fila!`, {
+          description: `${newCount} pedido(s) aguardando entregador`,
+          duration: 5000,
+        });
+      }
+      prevQueueCountRef.current = newCount;
+
+      setAvailableRequests(newAvailable);
       setMyDeliveries(mineData.requests || []);
     } finally {
       setLoading(false);
     }
   }, [user?.id]);
 
-  useEffect(() => {
-    fetchAll();
-    const t = setInterval(fetchAll, 8000);
-    return () => clearInterval(t);
-  }, [fetchAll]);
+  // Realtime: escuta mudanças em DeliveryRequest (status muda de pronto → liberado)
+  // Fallback automático pra polling (8s) se Supabase não estiver configurado
+  useRealtimeMulti(["DeliveryRequest"], fetchAll, 8000);
 
   async function handleAcceptWithPin() {
     if (!pinDialog || pinInput.length !== 4) {

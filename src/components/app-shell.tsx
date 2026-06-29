@@ -10,6 +10,7 @@ import { AdminDashboard } from "@/components/admin-dashboard";
 import { ROLE_INFO } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Truck, LogOut, Loader2 } from "lucide-react";
+import { isRealtimeEnabled } from "@/lib/supabase-client";
 
 export function AppShell() {
   const { user, loading, logout } = useAuth();
@@ -43,6 +44,18 @@ export function AppShell() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Badge Realtime */}
+            <div
+              className="hidden md:flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-medium"
+              title={isRealtimeEnabled ? "Conexão Realtime ativa (Supabase)" : "Modo polling (configurar Supabase Realtime)"}
+              style={{
+                background: isRealtimeEnabled ? "rgba(16, 185, 129, 0.15)" : "rgba(245, 158, 11, 0.15)",
+                color: isRealtimeEnabled ? "#10b981" : "#f59e0b",
+              }}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full ${isRealtimeEnabled ? "bg-emerald-400 animate-pulse" : "bg-amber-400"}`} />
+              {isRealtimeEnabled ? "AO VIVO" : "POLLING"}
+            </div>
             <div className="text-right hidden sm:block">
               <div className="text-xs font-medium leading-tight">{user.name}</div>
               <div className="text-[10px] text-sidebar-foreground/70 leading-tight">{role.label}</div>

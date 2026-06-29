@@ -16,6 +16,7 @@ import {
   Package, Clock, MapPin, AlertTriangle, Loader2, CheckCircle2,
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
+import { useRealtimeMulti } from "@/hooks/use-realtime";
 
 interface Stats {
   summary: {
@@ -72,9 +73,11 @@ export function GerenteDashboard() {
 
   useEffect(() => {
     fetchAll();
-    const t = setInterval(fetchAll, 15000);
-    return () => clearInterval(t);
   }, [fetchAll]);
+
+  // Realtime: escuta mudanças em pedidos, transações e audit log
+  // Fallback automático pra polling (15s) se Supabase não estiver configurado
+  useRealtimeMulti(["DeliveryRequest", "Transaction", "AuditLog"], fetchAll, 15000);
 
   if (loading || !stats) {
     return <div className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;

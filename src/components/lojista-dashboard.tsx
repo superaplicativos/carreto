@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
 import { useAuth } from "@/lib/auth-client";
+import { useRealtime } from "@/hooks/use-realtime";
 
 interface Location {
   id: string;
@@ -111,6 +112,10 @@ export function LojistaDashboard() {
     fetchLocations();
     fetchRequests();
   }, [fetchLocations, fetchRequests]);
+
+  // Realtime: histórico do lojista atualiza quando status dos pedidos muda
+  // (atendente bipa, etiqueta, entregador aceita, etc)
+  useRealtime("DeliveryRequest", fetchRequests, 15000);
 
   // Calcular preço em tempo real
   useEffect(() => {

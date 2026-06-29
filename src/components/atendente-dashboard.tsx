@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   Loader2, Timer, Flame, Scale,
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
+import { useRealtimeMulti } from "@/hooks/use-realtime";
 
 interface BoxRequest {
   id: string;
@@ -60,10 +61,58 @@ export function AtendenteDashboard() {
 
   useEffect(() => {
     fetchBox();
-    // Poll a cada 10s para atualizar cronômetros
-    const t = setInterval(fetchBox, 10000);
-    return () => clearInterval(t);
   }, [fetchBox]);
+
+  // Detecta novos pedidos "Liberados" pra tocar som + toast
+  const prevLiberadosRef = useRef<string[]>([]);
+  const notifyNewLib = useCallback((liberados: BoxRequest[]) => {
+    const ids = liberados.map((r) => r.id);
+    const prev = prevLiberadosRef.current;
+    const novos = ids.filter((id) => !prev.includes(id));
+    if (prev.length > 0 && novos.length > 0) {
+      // Toca som (beep via Web Audio API)
+      try {
+        const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.6);
+      } catch {}
+      const novosPedidos = liberados.filter((r) => novos.includes(r.id));
+      toast.success(`🔔 ${novosPedidos.length} pedido(s) liberado(s) pelo lojista!`, {
+        description: novosPedidos.map((r) => `${r.code} — ${r.destLocation.name}`).join("\n"),
+        duration: 6000,
+      });
+    }
+    prevLiberadosRef.current = ids;
+  }, []);
+
+  // Wrapper do fetchBox que detecta novos LIBERADO
+  const fetchBoxWithNotify = useCallback(async () => {
+    try {
+      const res = await fetch("/api/box");
+      if (!res.ok) return;
+      const data = await res.json();
+      setBox(data.box);
+      setRequests(data.requests || []);
+      notifyNewLib((data.requests || []).filter((r: BoxRequest) => r.status === "LIBERADO"));
+    } finally {
+      setLoading(false);
+    }
+  }, [notifyNewLib]);
+
+  // Realtime: escuta mudanças em DeliveryRequest e Package (muda status, nova bipagem, etc)
+  // Fallback automático pra polling (5s) se Supabase não estiver configurado
+  useRealtimeMulti(["DeliveryRequest", "Package"], fetchBoxWithNotify, 5000);
+  useEffect(() => {
+    const t = setInterval(fetchBoxWithNotify, 30000); // tick visual do cronômetro
+    return () => clearInterval(t);
+  }, [fetchBoxWithNotify]);
 
   async function handleScan() {
     if (!scanCode.trim()) return;
