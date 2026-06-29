@@ -20,6 +20,7 @@ import {
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
 import { useAuth } from "@/lib/auth-client";
 import { useRealtimeMulti } from "@/hooks/use-realtime";
+import { CardListSkeleton } from "@/components/skeletons";
 
 interface QueueRequest {
   id: string;
@@ -239,7 +240,7 @@ export function EntregadorDashboard() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>
+                <CardListSkeleton count={3} />
               ) : availableRequests.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />

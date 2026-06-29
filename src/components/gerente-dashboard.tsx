@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
 import { useRealtimeMulti } from "@/hooks/use-realtime";
+import { KpiSkeleton, CardListSkeleton } from "@/components/skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Stats {
   summary: {
@@ -80,7 +82,27 @@ export function GerenteDashboard() {
   useRealtimeMulti(["DeliveryRequest", "Transaction", "AuditLog"], fetchAll, 15000);
 
   if (loading || !stats) {
-    return <div className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;
+    return (
+      <div className="space-y-6">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <BarChart3 className="w-6 h-6 text-primary" /> Dashboard Operacional
+          </h1>
+          <p className="text-muted-foreground text-sm">Carregando dados em tempo real...</p>
+        </div>
+        <KpiSkeleton count={4} />
+        <div className="grid lg:grid-cols-2 gap-4">
+          <div className="rounded-lg border p-4 space-y-3">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+          <div className="rounded-lg border p-4 space-y-3">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const s = stats.summary;

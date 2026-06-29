@@ -20,6 +20,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { CardListSkeleton } from "@/components/skeletons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import {
@@ -66,7 +68,18 @@ interface DeliveryRequest {
   deliveredAt?: string | null;
   createdAt: string;
   lojista: { id: string; name: string };
-  entregador?: { id: string; name: string } | null;
+  entregador?: {
+    id: string;
+    name: string;
+    phone?: string | null;
+    entregadorProfile?: {
+      vehicleCategory: keyof typeof CATEGORY_INFO;
+      uniformKit: string | null;
+      cpf: string;
+      photoUrl: string | null;
+      status: string;
+    } | null;
+  } | null;
   originLocation: Location;
   destLocation: Location;
   packages: { id: string; qrCode: string; weightKg: number; description: string; shelfCode?: string | null }[];
@@ -144,9 +157,22 @@ export function LojistaDashboard() {
     return () => clearTimeout(t);
   }, [weightKg, distanceKm, preferredCategory]);
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  function validateForm() {
+    const newErrors: Record<string, string> = {};
+    if (!originId) newErrors.originId = "Selecione o shopping de origem";
+    if (!destId) newErrors.destId = "Selecione o destino";
+    if (!weightKg || Number(weightKg) <= 0) newErrors.weightKg = "Informe o peso (maior que 0)";
+    if (Number(weightKg) > 120) newErrors.weightKg = "Peso máximo é 120kg (use Carrinho)";
+    if (!volume || volume.trim().length < 3) newErrors.volume = "Descreva o volume (mín. 3 caracteres)";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
   async function handleSubmit() {
-    if (!originId || !destId || !weightKg || !volume) {
-      toast.error("Preencha todos os campos");
+    if (!validateForm()) {
+      toast.error("Corrija os campos destacados");
       return;
     }
     setSubmitLoading(true);
@@ -230,26 +256,28 @@ export function LojistaDashboard() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Shopping de Origem (seu box)</Label>
-                  <Select value={originId} onValueChange={setOriginId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o shopping" /></SelectTrigger>
+                  <Select value={originId} onValueChange={(v) => { setOriginId(v); setErrors({ ...errors, originId: "" }); }}>
+                    <SelectTrigger className={errors.originId ? "border-red-500" : ""}><SelectValue placeholder="Selecione o shopping" /></SelectTrigger>
                     <SelectContent>
                       {locations.shoppings.map((s) => (
                         <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.originId && <p className="text-xs text-red-500">⚠ {errors.originId}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label>Destino (Estacionamento / Pátio)</Label>
-                  <Select value={destId} onValueChange={setDestId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione o destino" /></SelectTrigger>
+                  <Select value={destId} onValueChange={(v) => { setDestId(v); setErrors({ ...errors, destId: "" }); }}>
+                    <SelectTrigger className={errors.destId ? "border-red-500" : ""}><SelectValue placeholder="Selecione o destino" /></SelectTrigger>
                     <SelectContent>
                       {locations.destinos.map((d) => (
                         <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.destId && <p className="text-xs text-red-500">⚠ {errors.destId}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -261,9 +289,11 @@ export function LojistaDashboard() {
                       step="0.5"
                       min="0.1"
                       value={weightKg}
-                      onChange={(e) => setWeightKg(e.target.value)}
+                      onChange={(e) => { setWeightKg(e.target.value); setErrors({ ...errors, weightKg: "" }); }}
                       placeholder="ex: 80"
+                      className={errors.weightKg ? "border-red-500" : ""}
                     />
+                    {errors.weightKg && <p className="text-xs text-red-500">⚠ {errors.weightKg}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="distance">Distância (km)</Label>
@@ -283,10 +313,12 @@ export function LojistaDashboard() {
                   <Textarea
                     id="volume"
                     value={volume}
-                    onChange={(e) => setVolume(e.target.value)}
+                    onChange={(e) => { setVolume(e.target.value); setErrors({ ...errors, volume: "" }); }}
                     placeholder="ex: 2 fardos de camisetas tamanho GG"
                     rows={2}
+                    className={errors.volume ? "border-red-500" : ""}
                   />
+                  {errors.volume && <p className="text-xs text-red-500">⚠ {errors.volume}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -430,7 +462,7 @@ export function LojistaDashboard() {
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>
+                <CardListSkeleton count={3} />
               ) : requests.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <Package className="w-12 h-12 mx-auto mb-2 opacity-30" />
@@ -598,19 +630,71 @@ function RequestCard({
           </Button>
         )}
         {(request.status === "SOLICITADO" || request.status === "RECEBIDO_BOX" || request.status === "PRONTO_DESPACHO") && (
-          <Button size="sm" variant="outline" onClick={() => onAction(request.id, "CANCEL")}>
-            Cancelar
-          </Button>
+          <ConfirmDialog
+            trigger={
+              <Button size="sm" variant="outline">
+                Cancelar
+              </Button>
+            }
+            title="Cancelar pedido?"
+            description={`O pedido ${request.code} será cancelado. Esta ação não pode ser desfeita.`}
+            confirmLabel="Sim, cancelar"
+            destructive
+            onConfirm={() => onAction(request.id, "CANCEL")}
+          />
         )}
         {request.status === "RECEBIDO_BOX" && (
-          <Button size="sm" variant="outline" onClick={() => onAction(request.id, "WITHDRAW_FROM_BOX")}>
-            Retirar no Box (taxa)
-          </Button>
+          <ConfirmDialog
+            trigger={
+              <Button size="sm" variant="outline">
+                Retirar no Box (taxa)
+              </Button>
+            }
+            title="Retirar no Box?"
+            description={`Ao retirar no box, será cobrada a taxa de R$ ${request.withdrawalFee.toFixed(2)} (igual ao valor do frete). Esta ação não pode ser desfeita.`}
+            confirmLabel={`Sim, retirar (R$ ${request.withdrawalFee.toFixed(2)})`}
+            destructive
+            onConfirm={() => onAction(request.id, "WITHDRAW_FROM_BOX")}
+          />
         )}
         {request.status === "EM_ENTREGA" && request.entregador && (
-          <Badge className="bg-cyan-100 text-cyan-700 text-xs">
-            🛵 {request.entregador.name} a caminho
-          </Badge>
+          <div className="w-full mt-2 p-3 rounded-lg bg-cyan-50 border border-cyan-200">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center text-white text-lg shrink-0">
+                {request.entregador.entregadorProfile?.vehicleCategory
+                  ? CATEGORY_INFO[request.entregador.entregadorProfile.vehicleCategory].icon
+                  : "🛵"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-cyan-900">
+                  {request.entregador.name}
+                </div>
+                <div className="text-xs text-cyan-700 flex items-center gap-2 flex-wrap">
+                  {request.entregador.entregadorProfile?.uniformKit && (
+                    <span className="bg-cyan-200 px-1.5 py-0.5 rounded text-[10px] font-mono">
+                      {request.entregador.entregadorProfile.uniformKit}
+                    </span>
+                  )}
+                  {request.entregador.entregadorProfile?.vehicleCategory && (
+                    <span>{CATEGORY_INFO[request.entregador.entregadorProfile.vehicleCategory].name}</span>
+                  )}
+                </div>
+              </div>
+              {request.entregador.phone && (
+                <a
+                  href={`tel:${request.entregador.phone.replace(/\D/g, "")}`}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-medium transition"
+                >
+                  <Phone className="w-3 h-3" />
+                  <span className="hidden sm:inline">Ligar</span>
+                </a>
+              )}
+            </div>
+            <div className="mt-2 text-xs text-cyan-700 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+              A caminho do destino · depuis {formatDateTime(request.pickedUpAt)}
+            </div>
+          </div>
         )}
         {request.status === "ENTREGUE" && (
           <Badge className="bg-emerald-100 text-emerald-700 text-xs">

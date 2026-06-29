@@ -40,7 +40,23 @@ export async function GET(req: NextRequest) {
     where,
     include: {
       lojista: { select: { id: true, name: true, email: true, phone: true } },
-      entregador: { select: { id: true, name: true, email: true, phone: true } },
+      entregador: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          entregadorProfile: {
+            select: {
+              vehicleCategory: true,
+              uniformKit: true,
+              cpf: true,
+              photoUrl: true,
+              status: true,
+            },
+          },
+        },
+      },
       originLocation: true,
       destLocation: true,
       packages: true,

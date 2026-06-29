@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { CATEGORY_INFO, STATUS_INFO, formatBRL, formatDateTime, timeAgo } from "@/lib/constants";
 import { useRealtimeMulti } from "@/hooks/use-realtime";
+import { KpiSkeleton, CardListSkeleton } from "@/components/skeletons";
 
 interface BoxRequest {
   id: string;
@@ -172,9 +173,27 @@ export function AtendenteDashboard() {
     }
   }
 
+  const aguardandoBipagem = requests.filter((r) => r.status === "SOLICITADO");
   const recebidos = requests.filter((r) => r.status === "RECEBIDO_BOX");
   const prontos = requests.filter((r) => r.status === "PRONTO_DESPACHO");
   const liberados = requests.filter((r) => r.status === "LIBERADO");
+
+  // Bipar direto do card (sem precisar digitar QR)
+  async function handleQuickBip(requestId: string) {
+    try {
+      const res = await fetch(`/api/requests/${requestId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "RECEIVE_AT_BOX" }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      toast.success("Pacote bipado! Cronômetro de 2h iniciado.");
+      fetchBoxWithNotify();
+    } catch (e) {
+      toast.error("Erro: " + (e as Error).message);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -249,13 +268,27 @@ export function AtendenteDashboard() {
         </Alert>
       )}
 
-      <Tabs defaultValue="recebidos">
-        <TabsList className="grid w-full grid-cols-3">
+      <Tabs defaultValue={aguardandoBipagem.length > 0 ? "aguardando" : "recebidos"}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="aguardando">
+            Aguardando ({aguardandoBipagem.length})
+          </TabsTrigger>
           <TabsTrigger value="recebidos">Recebidos ({recebidos.length})</TabsTrigger>
           <TabsTrigger value="prontos">Prontos ({prontos.length})</TabsTrigger>
           <TabsTrigger value="liberados">Liberados ({liberados.length})</TabsTrigger>
         </TabsList>
 
+        <TabsContent value="aguardando">
+          <RequestList
+            requests={aguardandoBipagem}
+            loading={loading}
+            emptyMsg="Nenhum pedido aguardando bipagem. Quando o lojista solicitar frete, aparece aqui."
+            actionLabel="Bipar e Receber no Box"
+            actionIcon={<QrCode className="w-3 h-3" />}
+            onAction={(r) => handleQuickBip(r.id)}
+            highlighted
+          />
+        </TabsContent>
         <TabsContent value="recebidos">
           <RequestList
             requests={recebidos}
@@ -390,7 +423,7 @@ function RequestList({
   highlighted?: boolean;
 }) {
   if (loading) {
-    return <div className="py-12 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></div>;
+    return <CardListSkeleton count={3} />;
   }
   if (requests.length === 0) {
     return (

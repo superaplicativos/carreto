@@ -18,14 +18,14 @@ export async function GET() {
 
   if (!box) return NextResponse.json({ error: "Box não encontrado" }, { status: 404 });
 
-  // Pedidos que chegaram ou estão prontos neste box
+  // Pedidos que chegaram ou estão prontos neste box (inclui SOLICITADO pra bipagem)
   const requests = await db.deliveryRequest.findMany({
     where: {
       originLocationId: box.shoppingId,
-      status: { in: ["RECEBIDO_BOX", "PRONTO_DESPACHO", "LIBERADO"] },
+      status: { in: ["SOLICITADO", "RECEBIDO_BOX", "PRONTO_DESPACHO", "LIBERADO"] },
     },
     include: {
-      lojista: { select: { name: true } },
+      lojista: { select: { name: true, phone: true } },
       originLocation: true,
       destLocation: true,
       packages: true,

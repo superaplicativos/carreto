@@ -67,7 +67,9 @@ export function AppShell() {
               variant="ghost"
               size="sm"
               onClick={logout}
-              className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2"
+              title="Sair"
+              aria-label="Sair"
             >
               <LogOut className="w-4 h-4" />
               <span className="hidden sm:inline ml-1">Sair</span>
